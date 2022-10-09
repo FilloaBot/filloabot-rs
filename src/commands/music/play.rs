@@ -42,7 +42,11 @@ pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) 
 
         handler.enqueue(audio);
 
-        return "Playing song".to_string()
+        if handler.queue().len() == 1 {
+            return "Playing song".to_string()
+        } else {
+            return "Added song to queue".to_string()
+        }
     } else {
         return "Not in a voice channel to play in".to_string()
     }
