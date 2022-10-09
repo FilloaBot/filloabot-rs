@@ -14,7 +14,7 @@ pub async fn run(_options: &[CommandDataOption], ctx: &Context, member: &Member)
     let connect_to = match channel_id {
         Some(channel) => channel,
         None => {
-            return "Not in a voice channel".to_string();
+            return "Not in a voice channel".to_string()
         }
     };
 

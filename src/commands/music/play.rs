@@ -34,7 +34,7 @@ pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) 
             Err(why) => {
                 println!("Err starting source: {:?}", why);
 
-                return "An error occurred while trying to play that song".to_string();
+                return "An error occurred while trying to play that song".to_string()
             },
         };
 
@@ -42,9 +42,9 @@ pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) 
 
         handler.enqueue(audio);
 
-        return "Playing song".to_string();
+        return "Playing song".to_string()
     } else {
-        return "Not in a voice channel to play in".to_string();
+        return "Not in a voice channel to play in".to_string()
     }
 }
 
