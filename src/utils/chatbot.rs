@@ -1,7 +1,5 @@
-// use serenity::framework::standard::macros::hook;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-// use serenity::Result;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 
@@ -60,8 +58,3 @@ pub async fn search_references(ctx: &Context, msg: &Message) -> Result<(), Seren
 
     Ok(())
 }
-
-// #[hook]
-// pub async fn message_analyzer(ctx: &Context, msg: &Message){
-//     search_references(&ctx, &msg).await.unwrap();
-// }
