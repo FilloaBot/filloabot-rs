@@ -1,7 +1,7 @@
-use serenity::framework::standard::macros::hook;
+// use serenity::framework::standard::macros::hook;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::Result;
+// use serenity::Result;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 
@@ -20,7 +20,7 @@ struct References {
     references: Vec<Reference>,
 }
 
-async fn search_references(ctx: &Context, msg: &Message) -> Result<()> {
+pub async fn search_references(ctx: &Context, msg: &Message) -> Result<(), SerenityError> {
     let json = r#"
     {"references": [
         {"regex": "cepill",
@@ -61,7 +61,7 @@ async fn search_references(ctx: &Context, msg: &Message) -> Result<()> {
     Ok(())
 }
 
-#[hook]
-pub async fn message_analyzer(ctx: &Context, msg: &Message){
-    search_references(&ctx, &msg).await.unwrap();
-}
+// #[hook]
+// pub async fn message_analyzer(ctx: &Context, msg: &Message){
+//     search_references(&ctx, &msg).await.unwrap();
+// }

@@ -1,3 +1,2 @@
-pub mod chatbot;
-pub mod meta;
+pub mod ping;
 pub mod music;

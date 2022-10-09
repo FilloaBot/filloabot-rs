@@ -1,101 +1,84 @@
 mod commands;
+mod utils;
 
-use std::collections::HashSet;
 use std::env;
-use std::sync::Arc;
 
 use songbird::SerenityInit;
 
 use serenity::async_trait;
-use serenity::client::bridge::gateway::ShardManager;
-use serenity::framework::standard::macros::group;
-use serenity::framework::StandardFramework;
-use serenity::http::Http;
-use serenity::model::event::ResumedEvent;
+use serenity::model::application::command::Command;
+use serenity::model::application::interaction::{Interaction, InteractionResponseType};
+use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
-use tracing::{error, info};
-
-use crate::commands::chatbot::*;
-use crate::commands::meta::*;
-use crate::commands::music::*;
-
-pub struct ShardManagerContainer;
-
-impl TypeMapKey for ShardManagerContainer {
-    type Value = Arc<Mutex<ShardManager>>;
-}
 
 struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
-    async fn ready(&self, _: Context, ready: Ready) {
-        info!("Connected as {}", ready.user.name);
+    async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
+        if let Interaction::ApplicationCommand(command) = interaction {
+            command
+                .create_interaction_response(&ctx.http, |response| {
+                    response
+                        .kind(InteractionResponseType::DeferredChannelMessageWithSource)
+                })
+                .await.expect("Error while responding to slash command");
+
+            let content = match command.data.name.as_str() {
+                "ping" => commands::ping::run(&command.data.options),
+                "join" => commands::music::join::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
+                "leave" => commands::music::leave::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
+                "play" => commands::music::play::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
+                "stop" => commands::music::stop::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
+                _ => "not implemented :(".to_string(),
+            };
+
+            command
+                .edit_original_interaction_response(&ctx.http, |response| {
+                    response.content(content)
+                })
+                .await.expect("Error while editing response to slash command");
+        }
     }
 
-    async fn resume(&self, _: Context, _: ResumedEvent) {
-        info!("Resumed");
+    async fn message(&self, ctx: Context, msg: Message) {
+        utils::chatbot::search_references(&ctx, &msg).await.expect("Error while scanning message");
+    }
+
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        println!("{} is connected!", ready.user.name);
+
+        Command::set_global_application_commands(&ctx.http, |commands| {
+                commands
+                    .create_application_command(|command| commands::ping::register(command))
+                    .create_application_command(|command| commands::music::join::register(command))
+                    .create_application_command(|command| commands::music::leave::register(command))
+                    .create_application_command(|command| commands::music::play::register(command))
+                    .create_application_command(|command| commands::music::stop::register(command))
+            })
+            .await.expect("Error adding the application commands");
     }
 }
 
-#[group]
-#[commands(ping, join, play)]
-struct General;
-
 #[tokio::main]
 async fn main() {
-    // This will load the environment variables located at `./.env`, relative to
-    // the CWD. See `./.env.example` for an example on how to structure this.
     dotenv::dotenv().expect("Failed to load .env file");
 
     // Initialize the logger to use environment variables.
-    //
-    // In this case, a good default is setting the environment variable
-    // `RUST_LOG` to `debug`.
     tracing_subscriber::fmt::init();
 
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
 
-    let http = Http::new(&token);
+    let intents = GatewayIntents::non_privileged();
 
-    // We will fetch your bot's owners and id
-    let (owners, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
-
-    // Create the framework
-    let framework =
-        StandardFramework::new().configure(|c| c.owners(owners).prefix("~")).group(&GENERAL_GROUP).normal_message(message_analyzer);
-
-    let intents = GatewayIntents::non_privileged()
-        | GatewayIntents::MESSAGE_CONTENT;
-    let mut client = Client::builder(&token, intents)
-        .framework(framework)
+    let mut client = Client::builder(token, intents)
         .event_handler(Handler)
         .register_songbird()
         .await
-        .expect("Err creating client");
-
-    {
-        let mut data = client.data.write().await;
-        data.insert::<ShardManagerContainer>(client.shard_manager.clone());
-    }
-
-    let shard_manager = client.shard_manager.clone();
-
-    tokio::spawn(async move {
-        tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
-        shard_manager.lock().await.shutdown_all().await;
-    });
+        .expect("Error creating client");
 
     if let Err(why) = client.start().await {
-        error!("Client error: {:?}", why);
+        println!("Client error: {:?}", why);
     }
 }
