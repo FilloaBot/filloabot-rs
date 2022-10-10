@@ -25,5 +25,5 @@ pub async fn run(_command: &ApplicationCommandInteraction, ctx: &Context, member
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("stop").description("Stop the music")
+    command.name("stop").description("Skips to the next track and removes the current from the queue")
 }
