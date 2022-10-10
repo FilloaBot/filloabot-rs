@@ -15,15 +15,23 @@ pub async fn run(_command: &ApplicationCommandInteraction, ctx: &Context, member
     if let Some(handler_lock) = manager.get(guild_id) {
         let handler = handler_lock.lock().await;
 
-        let audio_handle = handler.queue().current().expect("Error retrieving current track's hanlde");
-        audio_handle.stop().expect("Error while stopping track");
+        let queue = handler.queue();
 
-        return embed.colour(Colour::DARK_BLUE).title("Stopped").clone()
+        if queue.len() > 1{
+            let metadata = queue.current_queue()[1].metadata().clone();
+            embed.title("Skipped").field("Now playing", format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default()), false);
+        } else {
+            embed.title("Queue is now empty");
+        }
+        
+        queue.skip().expect("Error skipping current track");
+
+        return embed.colour(Colour::DARK_BLUE).clone()
     } else {
         return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("stop").description("Skips to the next track and removes the current from the queue")
+    command.name("next").description("Skips to the next track in the queue")
 }
