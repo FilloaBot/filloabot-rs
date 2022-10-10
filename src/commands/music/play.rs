@@ -49,7 +49,8 @@ pub async fn run(command: &ApplicationCommandInteraction, ctx: &Context, member:
         } else {
             embed.title("Added song to queue");
         }
-        return embed.colour(Colour::DARK_BLUE).description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
+
+        return embed.colour(Colour::DARK_BLUE).description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).image(metadata.thumbnail.unwrap_or_default()).clone()
     } else {
         return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
