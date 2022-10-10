@@ -45,10 +45,11 @@ pub async fn run(command: &ApplicationCommandInteraction, ctx: &Context, member:
         handler.enqueue(audio);
 
         if handler.queue().len() == 1 {
-            return embed.colour(Colour::DARK_BLUE).title("Playing song").description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
+            embed.title("Playing song");
         } else {
-            return embed.colour(Colour::DARK_BLUE).title("Added song to queue").description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
+            embed.title("Added song to queue");
         }
+        return embed.colour(Colour::DARK_BLUE).description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
     } else {
         return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
