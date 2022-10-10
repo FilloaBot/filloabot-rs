@@ -25,18 +25,17 @@ impl EventHandler for Handler {
                 })
                 .await.expect("Error while responding to slash command");
 
-            let content = match command.data.name.as_str() {
-                "ping" => commands::ping::run(&command.data.options),
-                "join" => commands::music::join::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
-                "leave" => commands::music::leave::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
-                "play" => commands::music::play::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
-                "stop" => commands::music::stop::run(&command.data.options, &ctx, command.member.as_ref().unwrap()).await,
-                _ => "not implemented :(".to_string(),
+            let embed = match command.data.name.as_str() {
+                "ping" => commands::ping::run(&command),
+                "join" => commands::music::join::run(&command, &ctx, command.member.as_ref().unwrap()).await,
+                "leave" => commands::music::leave::run(&command, &ctx, command.member.as_ref().unwrap()).await,
+                "play" => commands::music::play::run(&command, &ctx, command.member.as_ref().unwrap()).await,
+                "stop" => commands::music::stop::run(&command, &ctx, command.member.as_ref().unwrap()).await,
+                _ => todo!(),
             };
-
             command
                 .edit_original_interaction_response(&ctx.http, |response| {
-                    response.content(content)
+                    response.add_embed(embed)
                 })
                 .await.expect("Error while editing response to slash command");
         }

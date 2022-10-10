@@ -1,13 +1,16 @@
 use super::join;
 
-use serenity::builder::CreateApplicationCommand;
+use serenity::utils::Colour;
+use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::command::CommandOptionType;
-use serenity::model::prelude::interaction::application_command::{CommandDataOption, CommandDataOptionValue};
+use serenity::model::prelude::interaction::application_command::{CommandDataOptionValue, ApplicationCommandInteraction};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
-pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) -> String {
-    let option = options
+pub async fn run(command: &ApplicationCommandInteraction, ctx: &Context, member: &Member) -> CreateEmbed {
+    let mut embed: CreateEmbed = Default::default();
+
+    let option = command.data.options
         .get(0)
         .expect("Expected string option")
         .resolved
@@ -16,10 +19,7 @@ pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) 
 
     let query = if let CommandDataOptionValue::String(query) = option { query.as_str() } else { "" };
 
-    let output = join::run(options, &ctx, &member).await;
-    if output != "Connected!" {
-        return output
-    }
+    let _output = join::run(&command, &ctx, &member).await;
 
     let guild_id = member.guild_id;
 
@@ -34,21 +34,22 @@ pub async fn run(options: &[CommandDataOption], ctx: &Context, member: &Member) 
             Err(why) => {
                 println!("Err starting source: {:?}", why);
 
-                return "An error occurred while trying to play that song".to_string()
+                return embed.colour(Colour::DARK_RED).title("No results").description(format!("There aren't any results for **{}**", query)).clone()
             },
         };
 
+        let metadata = source.metadata.clone();
         let (audio, _audio_handle) = songbird::tracks::create_player(source);
 
         handler.enqueue(audio);
 
         if handler.queue().len() == 1 {
-            return "Playing song".to_string()
+            return embed.colour(Colour::DARK_BLUE).title("Playing song").description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
         } else {
-            return "Added song to queue".to_string()
+            return embed.colour(Colour::DARK_BLUE).title("Added song to queue").description(format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default())).clone()
         }
     } else {
-        return "Not in a voice channel to play in".to_string()
+        return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
 }
 

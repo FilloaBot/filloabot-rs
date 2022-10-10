@@ -1,9 +1,12 @@
-use serenity::builder::CreateApplicationCommand;
-use serenity::model::prelude::interaction::application_command::CommandDataOption;
+use serenity::utils::Colour;
+use serenity::builder::{CreateApplicationCommand, CreateEmbed};
+use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
-pub async fn run(_options: &[CommandDataOption], ctx: &Context, member: &Member) -> String {
+pub async fn run(_command: &ApplicationCommandInteraction, ctx: &Context, member: &Member) -> CreateEmbed {
+    let mut embed: CreateEmbed = Default::default();
+
     let guild_id = member.guild_id;
 
     let manager = songbird::get(ctx).await
@@ -12,12 +15,12 @@ pub async fn run(_options: &[CommandDataOption], ctx: &Context, member: &Member)
 
     if has_handler {
         if let Err(_e) = manager.remove(guild_id).await {
-            return "There was an error".to_string() 
+            return embed.colour(Colour::DARK_RED).title("There was an error").clone()
         } else {
-            return "Left voice channel".to_string()
+            return embed.colour(Colour::DARK_BLUE).title("Left the voice channel").clone()
         }
     } else {
-        return "Not in a voice channel".to_string()
+        return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
 }
 
