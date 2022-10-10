@@ -1,4 +1,5 @@
 use super::join;
+use super::resume;
 
 use serenity::utils::Colour;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
@@ -10,12 +11,12 @@ use serenity::prelude::*;
 pub async fn run(command: &ApplicationCommandInteraction, ctx: &Context, member: &Member) -> CreateEmbed {
     let mut embed: CreateEmbed = Default::default();
 
-    let option = command.data.options
-        .get(0)
-        .expect("Expected string option")
-        .resolved
-        .as_ref()
-        .expect("Expected string object");
+    let option = match command.data.options.get(0) {
+        Some(option) => option.resolved.as_ref().expect("Expected string object"),
+        None => {
+            return resume::run(&command, &ctx, &member).await;
+        },
+    };
 
     let query = if let CommandDataOptionValue::String(query) = option { query.as_str() } else { "" };
 
@@ -57,8 +58,7 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
     command.name("play").description("Play some music").create_option(|option| {
         option
             .name("query")
-            .description("URL or search string to play")
+            .description("URL or search string to play. Without arguments it works as /resume")
             .kind(CommandOptionType::String)
-            .required(true)
     })
 }
