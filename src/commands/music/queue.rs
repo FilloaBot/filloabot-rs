@@ -17,14 +17,12 @@ pub async fn run(_command: &ApplicationCommandInteraction, ctx: &Context, member
 
         let queue = handler.queue().current_queue();
 
-        embed.title("Queue").colour(Colour::DARK_BLUE);
-
         for (i, track) in queue.into_iter().enumerate() {
             let metadata = track.metadata().clone();
             embed.field(i, format!("[{}]({})", metadata.title.unwrap_or_default(), metadata.source_url.unwrap_or_default()), false);
         }
 
-        return embed.clone()
+        return embed.title("Queue").colour(Colour::DARK_BLUE).clone()
     } else {
         return embed.colour(Colour::DARK_RED).title("Not in a voice channel").clone()
     }
