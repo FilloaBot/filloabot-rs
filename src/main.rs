@@ -32,6 +32,7 @@ impl EventHandler for Handler {
                 "play" => commands::music::play::run(&command, &ctx, command.member.as_ref().unwrap()).await,
                 "pause" => commands::music::pause::run(&command, &ctx, command.member.as_ref().unwrap()).await,
                 "resume" => commands::music::resume::run(&command, &ctx, command.member.as_ref().unwrap()).await,
+                "queue" => commands::music::queue::run(&command, &ctx, command.member.as_ref().unwrap()).await,
                 "stop" => commands::music::stop::run(&command, &ctx, command.member.as_ref().unwrap()).await,
                 _ => todo!(),
             };
@@ -59,6 +60,7 @@ impl EventHandler for Handler {
                     .create_application_command(|command| commands::music::pause::register(command))
                     .create_application_command(|command| commands::music::resume::register(command))
                     .create_application_command(|command| commands::music::stop::register(command))
+                    .create_application_command(|command| commands::music::queue::register(command))
             })
             .await.expect("Error adding the application commands");
     }
