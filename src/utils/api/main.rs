@@ -5,8 +5,8 @@ use lazy_static::lazy_static;
 use reqwest::header;
 
 lazy_static! {
-    pub static ref API_URL: String = env::var("FILLOABOT_API_URL").expect("Expected an api url in the environment");
-    static ref API_TOKEN: String = env::var("FILLOABOT_API_TOKEN").expect("Expected an api token in the environment");
+    pub static ref API_URL: String = env::var("FILLOABOT_API_URL").unwrap_or_default();
+    static ref API_TOKEN: String = env::var("FILLOABOT_API_TOKEN").unwrap_or_default();
 }
 
 pub async fn get_client() -> reqwest::Client {
