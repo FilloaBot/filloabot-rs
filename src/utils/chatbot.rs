@@ -9,7 +9,7 @@ pub async fn search_references(ctx: &Context, msg: &Message) -> Result<(), Seren
     for reference in references.iter() {
         if reference.regex.is_match(msg.content.as_str()) {
             for reaction in reference.message_reactions.iter() {
-                msg.react(ctx, ReactionType::from(*reaction)).await?;
+                msg.react(ctx, ReactionType::try_from(reaction.clone()).expect("Not an emoji")).await?;
             }
 
             if !reference.answer_image.is_empty() || !reference.answer_text.is_empty() {
@@ -23,7 +23,7 @@ pub async fn search_references(ctx: &Context, msg: &Message) -> Result<(), Seren
                     m
                 }).await?;
                 for reaction in reference.answer_reactions.iter() {
-                    answer_msg.react(ctx, ReactionType::from(*reaction)).await?;
+                    answer_msg.react(ctx, ReactionType::try_from(reaction.clone()).expect("Not an emoji")).await?;
                 }
             }
         }

@@ -7,10 +7,10 @@ use regex::Regex;
 pub struct Reference {
     #[serde(with = "serde_regex")]
     pub regex: Regex,
-    pub message_reactions: Vec<char>,
+    pub message_reactions: Vec<String>,
     pub answer_text: String,
     pub answer_image: String,
-    pub answer_reactions: Vec<char>,
+    pub answer_reactions: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
