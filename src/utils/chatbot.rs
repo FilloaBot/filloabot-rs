@@ -1,3 +1,5 @@
+use super::api;
+
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -19,22 +21,10 @@ struct References {
 }
 
 pub async fn search_references(ctx: &Context, msg: &Message) -> Result<(), SerenityError> {
-    let json = r#"
-    {"references": [
-        {"regex": "cepill",
-        "message_reactions": ["🪥"],
-        "answer_text": "Cuidadito",
-        "answer_image": "https://cdn.discordapp.com/attachments/944942658713952317/1026547050038444032/cepill_II9iw.png",
-        "answer_reactions": ["😎"]}
-    ]}
-"#;
-
-
-    let parsed: References = serde_json::from_str(json).unwrap();
-    let references = parsed.references;
+    let references = api::references::get(*msg.guild_id.expect("Message wasn't from guild").as_u64()).await;
 
     for reference in references.iter() {
-        if reference.regex.is_match(&*msg.content) {
+        if reference.regex.is_match(msg.content.as_str()) {
             for reaction in reference.message_reactions.iter() {
                 msg.react(ctx, ReactionType::from(*reaction)).await?;
             }
