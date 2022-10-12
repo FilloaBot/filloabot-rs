@@ -46,7 +46,9 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        utils::chatbot::search_references(&ctx, &msg).await.expect("Error while scanning message");
+        if !msg.is_own(&ctx.cache) {
+            utils::chatbot::search_references(&ctx, &msg).await.expect("Error while scanning message");
+        }
     }
 
     async fn ready(&self, ctx: Context, ready: Ready) {
