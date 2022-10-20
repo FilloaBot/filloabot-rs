@@ -72,7 +72,7 @@ impl EventHandler for Handler {
 
 #[tokio::main]
 async fn main() {
-    dotenv::dotenv().expect("Failed to load .env file");
+    dotenv::dotenv().ok();
 
     // Initialize the logger to use environment variables.
     tracing_subscriber::fmt::init();
