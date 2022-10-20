@@ -1,10 +1,10 @@
 ### Builder
 FROM rust:1.64 as builder
 
+RUN apt-get update && apt-get install -y cmake
+
 WORKDIR /usr/src/filloabot-rs
 COPY . .
-
-RUN apt-get update && apt-get install -y cmake
 
 RUN cargo install --path .
 
