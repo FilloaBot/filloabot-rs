@@ -9,7 +9,7 @@ pub struct Reference {
     pub regex: Regex,
     pub message_reactions: Vec<String>,
     pub answer_text: String,
-    pub answer_image: String,
+    pub answer_attachment: String,
     pub answer_reactions: Vec<String>,
 }
 
