@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  bot:
+    image: ghcr.io/filloabot/filloabot-rs:latest
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=YourDiscordToken # Change this!
+      - FILLOABOT_API_URL=http://api:5000
+      - FILLOABOT_API_TOKEN=YouKnow
+      - RUST_LOG=error
+    links:
+      - api
+
+  api:
+    image: ghcr.io/filloabot/dumb-api:latest
+    restart: unless-stopped
+    volumes:
+      - ./references.json:/app/references.json:ro
