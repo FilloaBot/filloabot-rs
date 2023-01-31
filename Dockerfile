@@ -12,7 +12,7 @@ RUN cargo install --path .
 ### Actual image
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y libssl-dev ffmpeg libopus-dev curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libssl-dev ffmpeg libopus-dev curl python && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L 'https://yt-dl.org/latest/youtube-dl' -o /usr/bin/youtube-dl
 RUN chmod +x /usr/bin/youtube-dl
